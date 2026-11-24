@@ -1,7 +1,8 @@
 # Research: hosting the NFL application on a first-generation Fire TV Stick 4K
 
-Status: complete for Milestone 1. Every claim below was checked against primary sources or the
-repository itself; anything not verified is labelled as such.
+Status: complete for Milestone 1, extended by [RESEARCH-PHASE2.md](RESEARCH-PHASE2.md) (adversarial
+second pass: BlackBox, managed profiles, closed-source VM apps). Every claim below was checked against
+primary sources or the repository itself; anything not verified is labelled as such.
 
 ## 1. Method
 

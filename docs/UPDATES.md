@@ -125,10 +125,10 @@ something useful when a check is skipped or fails.
 
 ```bash
 ./scripts/package-release.sh
-# → dist/gameday-1.0.0.apk plus a manifest template with SHA-256 and size
+# → dist/gameday-1.0.1.apk plus a manifest template with SHA-256 and size
 
 # Create a GitHub release tagged v1.0.0 and attach:
-#   gameday-1.0.0.apk
+#   gameday-1.0.1.apk
 #   gameday-update.json
 ```
 

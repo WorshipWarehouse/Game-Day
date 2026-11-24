@@ -31,7 +31,7 @@ From a computer on the same network:
 ./scripts/deploy.sh --connect 192.168.1.42
 ```
 
-That script runs `adb connect`, installs `dist/gameday-1.0.0.apk` (or the newest debug build),
+That script runs `adb connect`, installs `dist/gameday-1.0.1.apk` (or the newest debug build),
 installs the compatibility test app if it is built, launches GameDay, and watches the log for eight
 seconds.
 
@@ -39,7 +39,7 @@ Manual alternative:
 
 ```bash
 adb connect 192.168.1.42:5555
-adb install -r dist/gameday-1.0.0.apk
+adb install -r dist/gameday-1.0.1.apk
 adb shell am start -n app.gameday.host/.ui.StartupActivity
 ```
 

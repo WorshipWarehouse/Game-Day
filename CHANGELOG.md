@@ -3,6 +3,49 @@
 All notable changes to GameDay are documented here. Format loosely follows Keep a Changelog;
 versions follow semantic versioning, with Android `versionCode` as the installation authority.
 
+## [1.0.1] — 2026-11-24
+
+Independent review pass. Ten defects fixed; no architecture change. See
+[docs/REVIEW-2026-11.md](docs/REVIEW-2026-11.md).
+
+### Fixed
+
+- **Critical:** `PackageInstaller.SessionParams.setInstallReason()` (API 26) was called unguarded, so
+  every staged install would have thrown `NoSuchMethodError` on Fire OS 6 (API 25). Now guarded, and
+  Android Lint runs as a test gate for this class of bug.
+- Install confirmations delivered as `STATUS_PENDING_USER_ACTION` are now forwarded, so staged
+  installs complete on platform builds that hand the dialog back to the caller.
+- Startup no longer blocks on the release check; the splash routes immediately and the check runs on
+  a daemon thread, with its result persisted.
+- "Restore default configuration" no longer clears the pinned NFL signing certificate (or version
+  facts). Only user preferences are reset.
+- `MENU` works more than once per screen.
+- Long-press `BACK` only exits GameDay from the home screen.
+- The cached update manifest now reports the published `minSdk` and `publishedAt` instead of
+  reconstructing them locally.
+- Reinstalls of the NFL app are distinguished from updates via `firstInstallTime`, so silent data
+  loss is reported instead of hidden.
+- Release checks send `If-None-Match` and honour `304 Not Modified`, avoiding repeated full fetches.
+- A missing install permission is reported as `PERMISSION_REQUIRED` rather than a verification
+  failure.
+
+### Added
+
+- `IsolationAssessment` (+7 tests) and `DeviceProbe.isolationFacts`: on-device evidence for the only
+  rootless isolation candidate (managed profile), exported in diagnostics as `isolation`.
+- `./scripts/qualify.sh`: one command for connection, identification, capability detection, install,
+  launch timing, memory/CPU/graphics profiling, update-capability reporting, diagnostics and a
+  consolidated `REPORT.md` + `report.json`.
+- Android Lint (API-level and correctness) as part of `./scripts/test.sh`.
+- Second-pass research report (`docs/RESEARCH-PHASE2.md`) and ADR 0002.
+
+### Changed
+
+- Version 1.0.1, `versionCode` 2, so this build installs over 1.0.0.
+- Release APK: 112,132 bytes, SHA-256
+  `a24439b1c75e9b55033030443fd3c2e8fe9f069f68037b865bc9ccbdeed1f374`; the reviewed 1.0.0 artefact
+  (108,924 bytes) is kept in `dist/` for comparison.
+
 ## [1.0.0] — 2026-11-24
 
 First Fire TV release. Native-hosting architecture; no emulator or virtualization engine.

@@ -12,12 +12,14 @@ successor) device.
 | `minSdk` = 25 | Pass | `aapt2 dump badging` → `sdkVersion:'25'` |
 | `targetSdk` = 34 | Pass | `aapt2 dump badging` → `targetSdkVersion:'34'` |
 | Release APK signed, v2 scheme | Pass | `apksigner verify --verbose` → "Verifies", v2 true |
-| APK size | 108,924 bytes (108 KB per `du -h`) | `du -h dist/gameday-1.0.0.apk` |
+| APK size | 112,132 bytes (112 KB per `du -h`) | `du -h dist/gameday-1.0.1.apk` |
 | No native libraries (runs on any ABI, incl. `armeabi-v7a`) | Pass | `aapt2`, `unzip -l` (no `lib/` entries) |
 | Leanback-launchable activity | Pass | `aapt2` → `leanback-launchable-activity: …StartupActivity` |
 | Permissions are minimal and declared | Pass | 4 permissions (INTERNET, ACCESS_NETWORK_STATE, REQUEST_INSTALL_PACKAGES, KILL_BACKGROUND_PROCESSES) |
 | Compat test app builds, own package and UID | Pass | `app.gameday.compat.test`, minSdk 25, leanback launchable |
-| Unit tests | 104 pass, 0 fail | `./scripts/test.sh` |
+| Unit tests | 111 pass, 0 fail | `./scripts/test.sh` |
+| Android Lint (API-level correctness) | 0 errors | `./scripts/test.sh` (Lint step) |
+| Managed-profile feasibility probe | Implemented, unit tested; device verdict pending | `IsolationAssessment`, `isolation` in diagnostics |
 | Version/update/backoff logic | Pass | `core` tests |
 | APK and split-set verification rules | Pass | `CompatibilityRulesTest`, `InstallPlanTest` |
 | Credential/PII redaction | Pass | `RedactorTest` |
@@ -42,6 +44,9 @@ successor) device.
 | Usage-access foreground detection | **Not verified** | grant usage access, then check Compatibility screen |
 | 4-hour soak without crash | **Not verified** | `./scripts/benchmark.sh --soak 240` |
 | Thermal behaviour during playback | **Not verified** | `./scripts/benchmark.sh` (`dumpsys thermalservice`) |
+| Managed-profile availability on Fire OS 6 | **Not verified** | `./scripts/qualify.sh` → `REPORT.md` (Managed users feature), diagnostics `isolation` |
+| Install permission state and usage-access state | **Not verified** | `./scripts/qualify.sh` → `updates.txt`, `REPORT.md` |
+| Consolidated hardware qualification | **Not verified** | `./scripts/qualify.sh --connect <ip>` writes `artifacts/qualify-*/REPORT.md` |
 
 ## 3. Known limitations (by design, not defects)
 

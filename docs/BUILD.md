@@ -25,7 +25,7 @@ Gradle wrapper if missing, and makes the scripts executable. It needs no root.
 ## 3. Everyday commands
 
 ```bash
-./scripts/test.sh                     # 104 JVM unit tests + summary table
+./scripts/test.sh                     # 111 JVM unit tests, plus Android Lint + summary table
 ./scripts/build.sh                    # debug APK for the launcher
 ./scripts/build.sh --all              # + compatibility test app
 ./scripts/build.sh --release          # alias for package-release.sh
@@ -49,7 +49,7 @@ Raw Gradle, if you prefer:
 - `compileSdk 34`, `minSdk 25`, `targetSdk 34`.
 - Java 17 source/target; no Kotlin plugin, no annotation processors, no desugaring library.
 - `android.useAndroidX=false`: the app uses platform views only.
-- Release builds are **not minified**: the APK is 108 KB and an unminified build is easier to audit
+- Release builds are **not minified**: the APK is 112 KB and an unminified build is easier to audit
   and reproduce. `proguard-rules.pro` exists so a future minified build stays safe.
 - `org.gradle.daemon=false` and a 1.5 GB heap so the build works on a small machine.
 

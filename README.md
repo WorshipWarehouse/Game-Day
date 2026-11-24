@@ -78,7 +78,7 @@ GameDay itself contains no native code, so its APK runs on every ABI (including 
 ```
 
 The release APK can also be sideloaded with any file-transfer tool:
-`dist/gameday-1.0.0.apk`. Full instructions, including the on-device Appstore install of the NFL app,
+`dist/gameday-1.0.1.apk`. Full instructions, including the on-device Appstore install of the NFL app,
 are in [docs/FIRE-TV-SETUP.md](docs/FIRE-TV-SETUP.md).
 
 ## Build and test
@@ -88,12 +88,13 @@ services, no NDK.
 
 ```bash
 ./scripts/setup.sh              # verify/locate the toolchain, write local.properties
-./scripts/test.sh               # 104 JVM unit tests
+./scripts/test.sh               # 111 JVM unit tests, plus Android Lint
 ./scripts/build.sh --all        # debug APK + compatibility test app
 ./scripts/package-release.sh    # signed, verified release APK in dist/
 ./scripts/deploy.sh --connect <fire-tv-ip>
 ./scripts/diagnose.sh           # device capability dump
 ./scripts/benchmark.sh          # cold/warm start, memory, frame stats
+./scripts/qualify.sh --connect <fire-tv-ip>   # one-command qualification + consolidated report
 ```
 
 Details: [docs/BUILD.md](docs/BUILD.md).
@@ -106,10 +107,10 @@ Split deliberately into what was verified here and what needs the device.
 
 - APK builds reproducibly with JDK 17 + AGP 8.5.2 + Gradle 8.7.
 - `aapt2` confirms `minSdk 25`, `targetSdk 34`, leanback-launchable activity, four permissions.
-- `apksigner` confirms a 4096-bit RSA signature; the APK is 108 KB.
-- 104 unit tests pass (version logic, update policy/backoff, signature and compatibility rules, split
+- `apksigner` confirms a 4096-bit RSA signature; the APK is 112 KB.
+- 111 unit tests pass (version logic, update policy/backoff, signature and compatibility rules, split
   APK validation, redaction, JSON, crash guard, remote-key mapping, runtime state machine).
-- `dist/gameday-1.0.0.apk` — `a6e303cf1a304092cc3fc7d99074de254f5f30d75d2cde658edc15e14104e692…` (SHA-256 printed by the packaging script).
+- `dist/gameday-1.0.1.apk` — `a24439b1c75e9b55033030443fd3c2e8fe9f069f68037b865bc9ccbdeed1f374…` (SHA-256 printed by the packaging script).
 
 **Not verified here — requires the physical Fire TV:**
 
@@ -159,7 +160,10 @@ dist/                  Signed release APKs
 
 ## Documentation
 
+- [docs/REVIEW-2026-11.md](docs/REVIEW-2026-11.md) — independent review of 1.0.0 and the ten fixes
 - [docs/RESEARCH.md](docs/RESEARCH.md) — the runtime investigation and measurements
+- [docs/RESEARCH-PHASE2.md](docs/RESEARCH-PHASE2.md) — adversarial second pass (BlackBox, managed profiles, closed VM apps)
+- [docs/decisions/0002-isolation-and-runtime-feasibility.md](docs/decisions/0002-isolation-and-runtime-feasibility.md) — feasibility decision and revisit criteria
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — modules, flows, state machines
 - [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md) — verified/blocked matrix
 - [docs/PERFORMANCE.md](docs/PERFORMANCE.md) — budgets, measurements, what remains

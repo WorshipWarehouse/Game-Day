@@ -7,16 +7,19 @@ number below was invented; anything that needs the physical Fire TV is marked as
 
 | Metric | Value | Method |
 | --- | --- | --- |
-| Release APK size | **108,924 bytes (106 KiB)** | `du -h dist/gameday-1.0.0.apk` |
+| Release APK size | **112,132 bytes (110 KiB)** | `du -h dist/gameday-1.0.1.apk` |
 | Debug APK size | 160 KiB | `ls -lh …/fire-tv-debug.apk` |
 | Compatibility test APK | 64 KiB | `ls -lh …/test-app-debug.apk` |
-| DEX classes in release APK | 168 | `dexdump -f dist/gameday-1.0.0.apk` |
+| DEX classes in release APK | 168 | `dexdump -f dist/gameday-1.0.1.apk` |
 | Native libraries | none | APK contains no `lib/` entries |
 | Third-party runtime libraries | none (no AndroidX, no Kotlin stdlib, no JSON lib) | Gradle dependency graph |
 | Unit tests | 104, all passing | `./scripts/test.sh` |
 | Warm `assembleDebug` (both APKs) | ~14 s | Gradle console output on a 2-vCPU VM |
 | Warm `assembleRelease` | ~21 s | `./scripts/package-release.sh` |
 | Signing | RSA-4096, APK Signature Scheme v2 | `apksigner verify --verbose` |
+
+1.0.0 measured 108,924 bytes; 1.0.1 adds the isolation probe and conditional-request support, and
+is 112,132 bytes. Both are in `dist/`.
 
 The APK is **~0.4 %** of the 30 MB budget. There is essentially nothing to shrink further: the
 remaining bytes are the platform-required manifest, `resources.arsc`, five icon densities and one

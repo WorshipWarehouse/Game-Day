@@ -53,7 +53,7 @@ so capability reports can state why each was rejected.
   - Waydroid needs GNU/Linux, root and kernel binder support.
   - AVF needs Android 13+, ARM64 and a system permission.
   - QEMU/Limbo cannot deliver hardware-decoded, DRM-protected 1080p on a 1.7 GHz ARMv7 SoC.
-- **It meets the footprint target.** The shipped APK is 108 KB with no native libraries.
+- **It meets the footprint target.** The shipped APK is 112 KB with no native libraries.
 
 ## Consequences
 
