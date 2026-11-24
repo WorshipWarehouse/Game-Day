@@ -9,7 +9,11 @@
     <!-- Best-effort "stop the guest" support; a normal permission, no user prompt. -->
     <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
 
-    <!-- Runs on Fire TV and on ordinary Android TV / phone devices for testing. -->
+    <!--
+      One APK, two seatings: Fire TV (leanback launcher, D-pad) and phone/tablet (touch launcher).
+      No activity pins an orientation, so a phone can rotate while a television, which never does,
+      is unaffected. The theme is fullscreen; the touch layout restores the system bars at runtime.
+    -->
     <uses-feature android:name="android.software.leanback" android:required="false" />
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
     <uses-feature android:name="android.hardware.faketouch" android:required="false" />
@@ -54,7 +58,6 @@
             android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenSize|uiMode"
             android:exported="true"
             android:launchMode="singleTask"
-            android:screenOrientation="landscape"
             android:theme="@style/Theme.GameDay.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -66,38 +69,32 @@
         <activity
             android:name=".ui.HomeActivity"
             android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenSize|uiMode"
-            android:exported="false"
-            android:screenOrientation="landscape" />
+            android:exported="false" />
 
         <activity
             android:name=".ui.SettingsActivity"
             android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenSize|uiMode"
-            android:exported="false"
-            android:screenOrientation="landscape" />
+            android:exported="false" />
 
         <activity
             android:name=".ui.DiagnosticsActivity"
             android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenSize|uiMode"
-            android:exported="false"
-            android:screenOrientation="landscape" />
+            android:exported="false" />
 
         <activity
             android:name=".ui.CompatibilityActivity"
             android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenSize|uiMode"
-            android:exported="false"
-            android:screenOrientation="landscape" />
+            android:exported="false" />
 
         <activity
             android:name=".ui.UpdateActivity"
             android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenSize|uiMode"
-            android:exported="false"
-            android:screenOrientation="landscape" />
+            android:exported="false" />
 
         <activity
             android:name=".ui.RecoveryActivity"
             android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenSize|uiMode"
-            android:exported="false"
-            android:screenOrientation="landscape" />
+            android:exported="false" />
 
         <receiver
             android:name=".install.InstallResultReceiver"

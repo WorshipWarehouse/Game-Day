@@ -13,6 +13,7 @@
     <string name="home_install_required">The NFL app is not installed</string>
     <string name="home_install_action">Get the NFL app</string>
     <string name="home_install_explainer">GameDay uses the official NFL app from the Amazon Appstore. Install it once, sign in there, and GameDay will launch it for you from now on.</string>
+    <string name="home_install_explainer_play">GameDay uses the official NFL app from Google Play. Install it once, sign in there, and GameDay will launch it for you from now on.</string>
     <string name="home_settings">Settings</string>
     <string name="home_diagnostics">Diagnostics</string>
     <string name="home_compatibility">Compatibility report</string>

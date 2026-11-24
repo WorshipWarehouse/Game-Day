@@ -18,10 +18,18 @@ The Fire TV application is unchanged and still fully tested.
   start a guest and says why. Executed on the review host; output recorded in `docs/RUNTIME-POC.md`.
 - `docs/PLATFORMS.md` (macOS, ARM64 Android, Android TV boxes, Raspberry Pi 5, mini PCs, Fire OS 8),
   `docs/RUNTIME-POC.md`, and ADR 0003 answering the platform questions.
+- **One APK for TV and phone/tablet.** `FormFactor` derives gutters, splash type size, system-bar
+  handling and initial focus from what the device reports, so the Fire TV layout is untouched while
+  a phone gets 48 dp touch targets, rotation and visible system bars. Screens no longer pin
+  `screenOrientation`.
+- Google Play fallback for the guest listing when the Amazon Appstore is not installed, so a phone
+  is not sent to an Amazon page that cannot install anything. The home screen names the store that
+  is actually present.
 
 ### Changed
 
-- `./scripts/test.sh` now runs `:runtime:desktop:test` (129 tests total).
+- `./scripts/test.sh` now runs `:runtime:desktop:test` and `:apps:fire-tv:testDebugUnitTest`
+  (137 tests total).
 - `docs/MACOS-ROADMAP.md` records Avo as the selected foundation and marks superseded assumptions.
 
 ### Not done, deliberately

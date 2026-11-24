@@ -18,6 +18,7 @@ import app.gameday.host.R;
 public abstract class BaseActivity extends Activity {
 
     protected AppServices services;
+    protected FormFactor formFactor;
     protected LinearLayout body;
     private long backDownAtMs;
     private boolean menuHandled;
@@ -26,17 +27,20 @@ public abstract class BaseActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         services = AppServices.get(this);
-        Ui.hideSystemUi(this);
+        formFactor = FormFactor.detect(this);
+        Ui.applyWindowMode(this, formFactor);
         CharSequence subtitle = subtitleRes() == 0 ? null : getString(subtitleRes());
         body = Ui.beginScreen(this, getString(titleRes()), subtitle);
         build(body);
-        focusFirstRow();
+        if (formFactor.focusesFirstRow()) {
+            focusFirstRow();
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Ui.hideSystemUi(this);
+        Ui.applyWindowMode(this, formFactor == null ? FormFactor.detect(this) : formFactor);
         onRefresh();
     }
 

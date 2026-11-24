@@ -8,6 +8,7 @@ import android.graphics.drawable.StateListDrawable;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -53,6 +54,19 @@ public final class Ui {
         layout.setOrientation(LinearLayout.HORIZONTAL);
         layout.setGravity(Gravity.CENTER_VERTICAL);
         return layout;
+    }
+
+    /**
+     * Applies the window mode this device needs: immersive on a television, ordinary system bars on
+     * a phone or tablet, where a hidden status bar would only cost the user their navigation.
+     */
+    public static void applyWindowMode(Activity activity, FormFactor form) {
+        if (form.hidesSystemUi()) {
+            hideSystemUi(activity);
+        } else {
+            activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            activity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+        }
     }
 
     public static void hideSystemUi(Activity activity) {
@@ -188,6 +202,9 @@ public final class Ui {
         row.setClickable(true);
         row.setBackground(rowBackground(context));
         row.setPadding(dp(context, 12), dp(context, 12), dp(context, 16), dp(context, 12));
+        // 48 dp is the documented minimum touch target; a television row is already taller, so this
+        // only changes the phone and tablet layout.
+        row.setMinimumHeight(dp(context, 48));
 
         View indicator = new View(context);
         LinearLayout.LayoutParams indicatorParams =
@@ -282,9 +299,11 @@ public final class Ui {
      */
     public static LinearLayout beginScreen(Activity activity, CharSequence title,
             CharSequence subtitle) {
+        FormFactor form = FormFactor.detect(activity);
         LinearLayout root = column(activity);
         root.setBackgroundColor(BG);
-        root.setPadding(dp(activity, 48), dp(activity, 26), dp(activity, 48), dp(activity, 18));
+        int side = dp(activity, form.sidePaddingDp());
+        root.setPadding(side, dp(activity, form.topPaddingDp()), side, dp(activity, 18));
 
         LinearLayout header = column(activity);
         header.addView(title(activity, title));

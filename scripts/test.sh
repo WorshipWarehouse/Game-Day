@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Runs GameDay's automated tests locally. No cloud CI and no device required.
 #
-#   ./scripts/test.sh            # JVM unit tests for :core, :runtime-api and :runtime:desktop
+#   ./scripts/test.sh            # JVM unit tests for :core, :runtime-api, :runtime:desktop and the host
+#                                # module's form-factor metrics
 #   ./scripts/test.sh --device   # also installs and launches the on-device compat test app
 set -euo pipefail
 
@@ -17,7 +18,8 @@ fi
 [ -x ./gradlew ] || { echo "error: ./gradlew missing; run ./scripts/setup.sh" >&2; exit 1; }
 
 echo "Running JVM unit tests"
-./gradlew --console=plain :core:test :runtime-api:test :runtime:desktop:test
+./gradlew --console=plain :core:test :runtime-api:test :runtime:desktop:test \
+  :apps:fire-tv:testDebugUnitTest
 
 python3 - <<'PY'
 import glob
@@ -25,8 +27,8 @@ import xml.etree.ElementTree as ET
 
 total = failures = skipped = 0
 rows = []
-for path in glob.glob("*/build/test-results/test/*.xml") + \
-            glob.glob("*/*/build/test-results/test/*.xml"):
+for path in glob.glob("*/build/test-results/test*/*.xml") + \
+            glob.glob("*/*/build/test-results/test*/*.xml"):
     try:
         root = ET.parse(path).getroot()
     except Exception:

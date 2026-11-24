@@ -36,6 +36,25 @@ Every alternative was investigated and rejected with evidence (see
 GameDay is therefore a **host and update/managed-launch layer**, not a new runtime. That decision is
 what makes 1080p60 hardware-decoded playback with working DRM possible at all on this hardware.
 
+## One APK, two seatings
+
+GameDay ships as a single package, `app.gameday.host`, that installs on a Fire TV **and** on a phone
+or tablet. Nothing is stripped for either target: the layout adapts at runtime from what the device
+reports, so there is one artifact to build, sign, verify and sideload.
+
+| | Fire TV (leanback) | Phone / tablet (touch) |
+| --- | --- | --- |
+| Launcher entry | `LEANBACK_LAUNCHER` | `LAUNCHER` |
+| Layout | 48 dp gutters, three-metre type scale, first row focused | 16–32 dp gutters, 48 dp touch targets, content centred past 720 dp |
+| System bars | hidden (immersive) | left visible |
+| Orientation | landscape, fixed by the device | rotates |
+| NFL app source | Amazon Appstore (`amzn://` deep link) | Google Play (`market://`), used only when the Appstore is absent |
+
+The active target is **Fire OS 6.7.1.1** (Fire TV Stick 4K, `AFTMM`: Android 7.1, API 25). That is
+why no API-26+ call is allowed without a guard and why Lint runs as a build gate. Phone and tablet
+support comes from the same code and exists so the host can be tried on hardware that is already on
+the desk; it is not an Amazon-certified path.
+
 ## Runtime status (Phase 3)
 
 GameDay has two runtimes, with deliberately different claims:

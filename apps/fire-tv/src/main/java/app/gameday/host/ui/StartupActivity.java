@@ -36,21 +36,23 @@ public final class StartupActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         services = AppServices.get(this);
-        Ui.hideSystemUi(this);
-        setContentView(buildSplash());
+        FormFactor form = FormFactor.detect(this);
+        Ui.applyWindowMode(this, form);
+        setContentView(buildSplash(form));
         runInitialization();
     }
 
-    private LinearLayout buildSplash() {
+    private LinearLayout buildSplash(FormFactor form) {
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setGravity(Gravity.CENTER);
         root.setBackgroundColor(Ui.BG);
+        root.setPadding(Ui.dp(this, form.sidePaddingDp()), 0, Ui.dp(this, form.sidePaddingDp()), 0);
 
         TextView brand = new TextView(this);
         brand.setText("GameDay");
         brand.setTextColor(Ui.TEXT);
-        brand.setTextSize(TypedValue.COMPLEX_UNIT_SP, 56f);
+        brand.setTextSize(TypedValue.COMPLEX_UNIT_SP, form.brandTextSizeSp());
         brand.setIncludeFontPadding(false);
         brand.setGravity(Gravity.CENTER);
         root.addView(brand);

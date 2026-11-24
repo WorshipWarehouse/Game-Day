@@ -8,6 +8,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import app.gameday.host.R;
+import app.gameday.host.runtime.NativeHostRuntime;
 import app.gameday.host.update.GameDayUpdateManager;
 import app.gameday.host.update.NflUpdateManager;
 import app.gameday.runtime.api.RuntimeResult;
@@ -56,8 +57,7 @@ public final class HomeActivity extends BaseActivity {
                 .onClick(v -> primaryAction());
         body.addView(primaryRow.view);
 
-        installRow = Ui.menuRow(this, str(R.string.home_install_action),
-                str(R.string.home_install_explainer))
+        installRow = Ui.menuRow(this, str(R.string.home_install_action), installExplainer())
                 .onClick(v -> openStoreForInstall());
         body.addView(installRow.view);
 
@@ -178,6 +178,13 @@ public final class HomeActivity extends BaseActivity {
             return;
         }
         showMessage(result.errorMessage() + " (" + result.errorCode() + ")", Ui.DANGER);
+    }
+
+    /** The store named here is the one this device actually has, not always the Appstore. */
+    private String installExplainer() {
+        return getString(NativeHostRuntime.AppStore.isInstalled(this)
+                ? R.string.home_install_explainer
+                : R.string.home_install_explainer_play);
     }
 
     private void openStoreForInstall() {

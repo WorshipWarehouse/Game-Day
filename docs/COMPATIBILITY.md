@@ -12,12 +12,15 @@ successor) device.
 | `minSdk` = 25 | Pass | `aapt2 dump badging` → `sdkVersion:'25'` |
 | `targetSdk` = 34 | Pass | `aapt2 dump badging` → `targetSdkVersion:'34'` |
 | Release APK signed, v2 scheme | Pass | `apksigner verify --verbose` → "Verifies", v2 true |
-| APK size | 112,132 bytes (112 KB per `du -h`) | `du -h dist/gameday-1.0.1.apk` |
+| APK size | 113,256 bytes (112 KB per `du -h`) | `du -h dist/gameday-1.0.1.apk` |
 | No native libraries (runs on any ABI, incl. `armeabi-v7a`) | Pass | `aapt2`, `unzip -l` (no `lib/` entries) |
 | Leanback-launchable activity | Pass | `aapt2` → `leanback-launchable-activity: …StartupActivity` |
 | Permissions are minimal and declared | Pass | 4 permissions (INTERNET, ACCESS_NETWORK_STATE, REQUEST_INSTALL_PACKAGES, KILL_BACKGROUND_PROCESSES) |
 | Compat test app builds, own package and UID | Pass | `app.gameday.compat.test`, minSdk 25, leanback launchable |
-| Unit tests | 129 pass, 0 fail | `./scripts/test.sh` |
+| Unit tests | 137 pass, 0 fail | `./scripts/test.sh` |
+| TV + touch layout metrics | 8 pass, 0 fail | `:apps:fire-tv:testDebugUnitTest` |
+| Both launcher entries in one APK | Pass | `aapt2` → `launchable-activity` and `leanback-launchable-activity` |
+| Touch device declaration | Pass | `uses-feature android.hardware.touchscreen required=false` (no Play device filtering) |
 | Desktop runtime backend | 18 pass, 0 fail (fake adb; no VM required) | `:runtime:desktop:test` |
 | Host readiness verifier | Executed; correctly **BLOCKED** with four measured reasons | `:runtime:desktop:hostVerdict` |
 | Android Lint (API-level correctness) | 0 errors | `./scripts/test.sh` (Lint step) |
@@ -49,6 +52,8 @@ successor) device.
 | Managed-profile availability on Fire OS 6 | **Not verified** | `./scripts/qualify.sh` → `REPORT.md` (Managed users feature), diagnostics `isolation` |
 | Install permission state and usage-access state | **Not verified** | `./scripts/qualify.sh` → `updates.txt`, `REPORT.md` |
 | Consolidated hardware qualification | **Not verified** | `./scripts/qualify.sh --connect <ip>` writes `artifacts/qualify-*/REPORT.md` |
+| Target build: Fire OS 6.7.1.1 (`AFTMM`) | **Not verified on device** | `./scripts/deploy.sh --connect <ip>`; expected API 25 |
+| Same APK on a phone/tablet (touch layout, Play redirect) | **Not verified** | sideload on any API 25+ phone, open Home and Diagnostics |
 | Android guest boot on Apple silicon (Avo) | **Not verified** — no Mac and no usable hypervisor in the review environment | `./gradlew :runtime:desktop:hostVerdict` on an M-series Mac, then `docs/RUNTIME-POC.md` §4 |
 | Protected playback inside the desktop VM | **Expected to fail by design** (L1 needs a TEE; a VM is L3 at best) | MediaDrm `SecurityLevel` probe in the guest |
 

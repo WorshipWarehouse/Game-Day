@@ -533,12 +533,29 @@ public final class NativeHostRuntime implements RuntimeBackend {
         }
 
         public static boolean openHostPage(Context context) {
-            return open(context, "amzn://apps/android?p=" + BuildConfig.HOST_PACKAGE);
+            return open(context, hostPageUri(context, false));
         }
 
         public static boolean openHostUpdatePage(Context context) {
-            return open(context,
-                    "amzn://apps/android?p=" + BuildConfig.HOST_PACKAGE + "&intent=app_update");
+            return open(context, hostPageUri(context, true));
+        }
+
+        /**
+         * The store that actually owns the guest on this device. Fire OS ships the Amazon Appstore;
+         * a phone or tablet normally has Google Play and no Appstore, where the Amazon deep link
+         * would open a web page that cannot install anything.
+         */
+        public static String hostPageUri(Context context, boolean update) {
+            if (isInstalled(context)) {
+                String uri = "amzn://apps/android?p=" + BuildConfig.HOST_PACKAGE;
+                return update ? uri + "&intent=app_update" : uri;
+            }
+            return "market://details?id=" + BuildConfig.HOST_PACKAGE;
+        }
+
+        /** Name of that store, for the sentence the home screen shows. */
+        public static String storeName(Context context) {
+            return isInstalled(context) ? "the Amazon Appstore" : "Google Play";
         }
 
         private static boolean open(Context context, String uri) {
@@ -548,10 +565,10 @@ public final class NativeHostRuntime implements RuntimeBackend {
                 context.startActivity(intent);
                 return true;
             } catch (RuntimeException e) {
-                // Fall back to the public Appstore web page, which also drives a Fire TV install.
+                // Fall back to the same store's public web page, which also drives an install.
                 try {
-                    Intent web = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(
-                            "https://www.amazon.com/gp/mas/dl/android?p=" + BuildConfig.HOST_PACKAGE));
+                    Intent web = new Intent(Intent.ACTION_VIEW,
+                            android.net.Uri.parse(webFallback(context)));
                     web.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(web);
                     return true;
@@ -559,6 +576,12 @@ public final class NativeHostRuntime implements RuntimeBackend {
                     return false;
                 }
             }
+        }
+
+        private static String webFallback(Context context) {
+            return isInstalled(context)
+                    ? "https://www.amazon.com/gp/mas/dl/android?p=" + BuildConfig.HOST_PACKAGE
+                    : "https://play.google.com/store/apps/details?id=" + BuildConfig.HOST_PACKAGE;
         }
     }
 
