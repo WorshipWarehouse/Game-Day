@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="gd_bg">#0A0E13</color>
+    <color name="gd_surface">#141B24</color>
+    <color name="gd_surface_alt">#1B2531</color>
+    <color name="gd_focus">#1F3A2B</color>
+    <color name="gd_accent">#2BD46B</color>
+    <color name="gd_accent_dim">#1B7A42</color>
+    <color name="gd_text">#F3F6F9</color>
+    <color name="gd_text_muted">#9BA8B5</color>
+    <color name="gd_danger">#F05252</color>
+    <color name="gd_warning">#F2B33D</color>
+    <color name="gd_divider">#22303D</color>
+    <color name="gd_scrim">#CC000000</color>
+</resources>

@@ -1,0 +1,26 @@
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.name = 'GameDay'
+
+// Platform-independent logic and its JVM test suite.
+include ':core'
+// Runtime backend contract shared by Android (now) and macOS (later).
+include ':runtime-api'
+// The Fire TV application.
+include ':apps:fire-tv'
+// Self-owned compatibility test application used to validate the runtime on device.
+include ':compatibility:test-app'

@@ -1,0 +1,10 @@
+plugins {
+    id 'com.android.application' version '8.5.2' apply false
+}
+
+// Every module is plain Java: no Kotlin runtime, no AndroidX, no annotation processors.
+// That keeps the APK tiny, the build fast, and the shared logic reusable by the future macOS app.
+
+tasks.register('clean', Delete) {
+    delete rootProject.layout.buildDirectory
+}

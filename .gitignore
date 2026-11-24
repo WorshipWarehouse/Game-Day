@@ -1,0 +1,20 @@
+# Build output
+build/
+.gradle/
+*.iml
+.idea/
+local.properties
+
+# Signing material is never committed.
+*.jks
+*.keystore
+keystore.properties
+signing/
+
+# Toolchain and scratch files
+.toolchain/
+*.log
+
+# Device dumps collected by scripts/diagnose.sh and scripts/benchmark.sh
+artifacts/
+.DS_Store

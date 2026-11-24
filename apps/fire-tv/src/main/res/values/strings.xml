@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">GameDay</string>
+    <string name="app_tagline">Your NFL app, launched properly.</string>
+
+    <string name="startup_initializing">Starting up…</string>
+    <string name="startup_probing_runtime">Checking device capabilities…</string>
+    <string name="startup_ready">Ready</string>
+
+    <string name="home_launch">Watch NFL</string>
+    <string name="home_launching">Opening the NFL app…</string>
+    <string name="home_resume">Return to NFL</string>
+    <string name="home_install_required">The NFL app is not installed</string>
+    <string name="home_install_action">Get the NFL app</string>
+    <string name="home_install_explainer">GameDay uses the official NFL app from the Amazon Appstore. Install it once, sign in there, and GameDay will launch it for you from now on.</string>
+    <string name="home_settings">Settings</string>
+    <string name="home_diagnostics">Diagnostics</string>
+    <string name="home_compatibility">Compatibility report</string>
+    <string name="home_updates">Updates</string>
+    <string name="home_recovery">Recovery</string>
+    <string name="home_check_updates">Check for updates</string>
+    <string name="home_unavailable">This device cannot run GameDay\'s runtime</string>
+
+    <string name="status_installed_version">NFL app %1$s</string>
+    <string name="status_not_installed">NFL app not installed</string>
+    <string name="status_runtime">Runtime: %1$s</string>
+    <string name="status_gameday_update">GameDay %1$s is available</string>
+    <string name="status_up_to_date">GameDay is up to date</string>
+    <string name="status_update_unknown">Update status unknown</string>
+    <string name="status_last_check">Last checked %1$s</string>
+
+    <string name="settings_title">Settings</string>
+    <string name="settings_general">General</string>
+    <string name="settings_auto_launch">Launch NFL automatically</string>
+    <string name="settings_auto_launch_summary">Open the NFL app as soon as GameDay starts.</string>
+    <string name="settings_resume">Resume where you left off</string>
+    <string name="settings_resume_summary">Keep the last session when returning to the NFL app where the app supports it.</string>
+    <string name="settings_nfl_updates">NFL app updates</string>
+    <string name="settings_auto_update_nfl">Automatic NFL app updates</string>
+    <string name="settings_auto_update_nfl_summary">Delegate updates to the Amazon Appstore and check after each change.</string>
+    <string name="settings_installed_version">Installed version</string>
+    <string name="settings_latest_compatible">Latest verified compatible</string>
+    <string name="settings_last_nfl_check">Last update check</string>
+    <string name="settings_check_nfl_updates">Open NFL app in Appstore</string>
+    <string name="settings_gameday_updates">GameDay updates</string>
+    <string name="settings_auto_update_gameday">Automatic GameDay update checks</string>
+    <string name="settings_auto_update_gameday_summary">Check GameDay\'s own release feed on start and every six hours.</string>
+    <string name="settings_channel">Release channel</string>
+    <string name="settings_check_gameday_updates">Check for GameDay updates</string>
+    <string name="settings_performance">Performance</string>
+    <string name="settings_hw_decode">Hardware video decoding</string>
+    <string name="settings_memory">Memory</string>
+    <string name="settings_storage">Storage</string>
+    <string name="settings_diagnostics">Diagnostics</string>
+    <string name="settings_device">Device and runtime</string>
+    <string name="settings_export">Export diagnostic report</string>
+    <string name="settings_recovery">Recovery</string>
+    <string name="settings_restart_runtime">Restart runtime</string>
+    <string name="settings_clear_temp">Clear temporary files</string>
+    <string name="settings_reset_config">Restore default configuration</string>
+    <string name="settings_reset_data">Reset GameDay data</string>
+    <string name="settings_reset_data_warning">This removes GameDay settings and diagnostics only. The NFL app and its sign-in are never touched.</string>
+
+    <string name="on_off_on">On</string>
+    <string name="on_off_off">Off</string>
+    <string name="action_back">Back</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_confirm">Confirm</string>
+    <string name="action_retry">Retry</string>
+    <string name="action_close">Close</string>
+    <string name="action_export">Export</string>
+    <string name="action_refresh">Refresh</string>
+
+    <string name="recovery_title">Recovery</string>
+    <string name="recovery_safe_mode_title">Safe mode</string>
+    <string name="recovery_safe_mode_body">GameDay stopped launching the NFL app automatically because startup failed repeatedly. Nothing was deleted. Try the steps below in order.</string>
+    <string name="recovery_restarted">Runtime restarted.</string>
+    <string name="recovery_temp_cleared">Temporary files cleared.</string>
+    <string name="recovery_config_reset">Default configuration restored.</string>
+    <string name="recovery_data_reset">GameDay data reset. The NFL app is untouched.</string>
+
+    <string name="diagnostics_title">Diagnostics</string>
+    <string name="diagnostics_generating">Collecting device information…</string>
+    <string name="diagnostics_exported">Report written to %1$s</string>
+    <string name="diagnostics_share">Share report</string>
+    <string name="diagnostics_privacy">Reports contain device capabilities and GameDay state. Credentials, tokens and personal identifiers are removed before the report is written.</string>
+
+    <string name="compat_title">Compatibility</string>
+    <string name="compat_refresh">Re-run checks</string>
+
+    <string name="updates_title">Updates</string>
+    <string name="updates_checking">Checking…</string>
+    <string name="updates_none">No update available.</string>
+    <string name="updates_failed">Update check failed: %1$s</string>
+    <string name="updates_downloading">Downloading %1$d%%</string>
+    <string name="updates_verifying">Verifying package…</string>
+    <string name="updates_installing">Installing…</string>
+    <string name="updates_permission_needed">Allow GameDay to install updates, then retry.</string>
+    <string name="updates_staged">Update verified and handed to the installer.</string>
+    <string name="updates_release_notes">Release notes</string>
+
+    <string name="nfl_store_missing">The Amazon Appstore is not available on this device.</string>
+    <string name="nfl_store_opened">Opening the NFL app page in the Amazon Appstore…</string>
+
+    <string name="error_generic">Something went wrong: %1$s</string>
+    <string name="not_affiliated">GameDay is an independent open-source launcher. It is not affiliated with, endorsed by, or sponsored by the NFL or Amazon.</string>
+</resources>

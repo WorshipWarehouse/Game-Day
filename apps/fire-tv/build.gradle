@@ -1,0 +1,97 @@
+plugins {
+    id 'com.android.application'
+}
+
+// Release signing is supplied at build time and never committed:
+//   ./scripts/package-release.sh  (creates/uses a keystore in ./signing/)
+// or -Pgameday.storeFile=... -Pgameday.storePassword=... -Pgameday.keyAlias=... -Pgameday.keyPassword=...
+def releaseStoreFile = project.findProperty('gameday.storeFile')
+def releaseStorePassword = project.findProperty('gameday.storePassword')
+def releaseKeyAlias = project.findProperty('gameday.keyAlias')
+def releaseKeyPassword = project.findProperty('gameday.keyPassword')
+def hasReleaseSigning = releaseStoreFile != null && releaseStorePassword != null
+        && releaseKeyAlias != null
+
+android {
+    namespace 'app.gameday.host'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'app.gameday.host'
+        minSdk 25
+        targetSdk 34
+        versionCode 1
+        versionName '1.0.0'
+
+        // GameDay's own release feed (see docs/UPDATES.md).
+        buildConfigField 'String', 'UPDATE_REPOSITORY', '"WorshipWarehouse/Game-Day"'
+        buildConfigField 'String', 'UPDATE_CHANNEL_DEFAULT', '"stable"'
+        buildConfigField 'String', 'UPDATE_MANIFEST_ASSET', '"gameday-update.json"'
+
+        // The official NFL application for Fire TV. Verified against the published package
+        // (com.gotv.nflgamecenter.us.lite), minSdk 25, distributed by the Amazon Appstore.
+        buildConfigField 'String', 'HOST_PACKAGE', '"com.gotv.nflgamecenter.us.lite"'
+        buildConfigField 'String', 'AMAZON_APPSTORE_PACKAGE', '"com.amazon.venezia"'
+
+        resConfigs 'en'
+    }
+
+    signingConfigs {
+        release {
+            if (hasReleaseSigning) {
+                storeFile file(releaseStoreFile)
+                storePassword releaseStorePassword
+                keyAlias releaseKeyAlias
+                keyPassword releaseKeyPassword == null ? releaseStorePassword : releaseKeyPassword
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            versionNameSuffix '-debug'
+        }
+        release {
+            // R8 is intentionally off: the APK is already tiny (single DEX, no libraries), and an
+            // unminified release is easier to audit and to reproduce. See docs/PERFORMANCE.md.
+            minifyEnabled false
+            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig hasReleaseSigning ? signingConfigs.release : signingConfigs.debug
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    buildFeatures {
+        buildConfig true
+        resValues false
+        shaders false
+    }
+
+    lint {
+        abortOnError true
+        checkReleaseBuilds false
+        warningsAsErrors false
+        disable 'ExpiredTargetSdkVersion', 'OldTargetApi'
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+
+    packaging {
+        resources {
+            excludes += ['META-INF/*.kotlin_module', 'DebugProbesKt.bin']
+        }
+    }
+}
+
+dependencies {
+    implementation project(':core')
+    implementation project(':runtime-api')
+    testImplementation 'junit:junit:4.13.2'
+}
