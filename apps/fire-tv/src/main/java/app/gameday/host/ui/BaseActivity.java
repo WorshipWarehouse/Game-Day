@@ -70,6 +70,10 @@ public abstract class BaseActivity extends Activity {
         if (keyCode == RemoteKeyMap.KEYCODE_BACK) {
             backDownAtMs = event.getDownTime();
         }
+        if (keyCode == RemoteKeyMap.KEYCODE_MENU) {
+            // Reset per key press: the flag exists only to swallow auto-repeat on the way up.
+            menuHandled = false;
+        }
         return super.onKeyDown(keyCode, event);
     }
 
@@ -87,7 +91,10 @@ public abstract class BaseActivity extends Activity {
             return true;
         }
         if (keyCode == RemoteKeyMap.KEYCODE_BACK
-                && RemoteKeyMap.isLongPress(backDownAtMs, event.getEventTime())) {
+                && RemoteKeyMap.isLongPress(backDownAtMs, event.getEventTime())
+                && isTaskRoot()) {
+            // Only the home screen exits GameDay; elsewhere a long press is just Back, so a held
+            // button in a sub-screen cannot silently terminate the app.
             finishAffinity();
             return true;
         }

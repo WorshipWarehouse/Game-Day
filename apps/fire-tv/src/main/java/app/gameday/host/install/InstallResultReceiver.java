@@ -61,5 +61,23 @@ public final class InstallResultReceiver extends BroadcastReceiver {
         services.settings().putString(KEY_LAST_STATUS, text);
         services.settings().commit();
         services.crashLog().record("install result: " + text);
+
+        // Some platform builds do not show the confirmation themselves: they hand it back so the
+        // caller can present it. Ignoring this extra means a staged install would never complete
+        // on those devices, so the intent is forwarded whenever the platform asks for it.
+        if (status == PackageInstaller.STATUS_PENDING_USER_ACTION) {
+            // The confirmation Intent travels in Intent.EXTRA_INTENT, not a PackageInstaller
+            // constant; this is the documented contract for STATUS_PENDING_USER_ACTION.
+            Intent confirmation = intent.getParcelableExtra(Intent.EXTRA_INTENT);
+            if (confirmation != null) {
+                confirmation.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                try {
+                    context.startActivity(confirmation);
+                } catch (RuntimeException e) {
+                    services.crashLog().record("could not show install confirmation: "
+                            + e.getMessage());
+                }
+            }
+        }
     }
 }

@@ -41,18 +41,25 @@ public final class HttpFetcher {
         public final File file;
         public final String sha256;
         public final long bytes;
+        /** True for an HTTP 304, i.e. the caller's cached copy is still current. */
+        public final boolean notModified;
+        /** Validator to send back as {@code If-None-Match} on the next request, when provided. */
+        public final String etag;
 
-        Result(boolean ok, String message, String body, File file, String sha256, long bytes) {
+        Result(boolean ok, String message, String body, File file, String sha256, long bytes,
+                boolean notModified, String etag) {
             this.ok = ok;
             this.message = message;
             this.body = body;
             this.file = file;
             this.sha256 = sha256;
             this.bytes = bytes;
+            this.notModified = notModified;
+            this.etag = etag;
         }
 
         public static Result error(String message) {
-            return new Result(false, message, null, null, null, 0L);
+            return new Result(false, message, null, null, null, 0L, false, null);
         }
     }
 
@@ -67,17 +74,29 @@ public final class HttpFetcher {
     }
 
     public Result fetchText(String url) {
+        return fetchText(url, null);
+    }
+
+    /**
+     * @param etag validator from a previous response; when it is still current the server answers
+     *     304 and nothing is downloaded, which keeps the unauthenticated GitHub rate limit intact
+     */
+    public Result fetchText(String url, String etag) {
         HttpURLConnection connection = null;
         try {
-            connection = open(url);
+            connection = open(url, etag);
             int code = connection.getResponseCode();
+            if (code == HttpURLConnection.HTTP_NOT_MODIFIED) {
+                return new Result(true, "Not modified", null, null, null, 0L, true, etag);
+            }
             if (code != 200) {
                 return Result.error("HTTP " + code + " from " + UrlPolicy.sanitizeForLog(url));
             }
             InputStream in = new BufferedInputStream(connection.getInputStream());
             try {
                 String body = readBounded(in, MAX_TEXT_BYTES);
-                return new Result(true, "OK", body, null, null, body.length());
+                return new Result(true, "OK", body, null, null, body.length(), false,
+                        connection.getHeaderField("ETag"));
             } finally {
                 closeQuietly(in);
             }
@@ -108,7 +127,7 @@ public final class HttpFetcher {
         MessageDigest digest = Sha256.newDigest();
         long total = 0L;
         try {
-            connection = open(url);
+            connection = open(url, null);
             int code = connection.getResponseCode();
             if (code != 200) {
                 return Result.error("HTTP " + code + " from " + UrlPolicy.sanitizeForLog(url));
@@ -156,10 +175,10 @@ public final class HttpFetcher {
             delete(destination);
             return Result.error("Checksum mismatch: the download is not the published artifact.");
         }
-        return new Result(true, "OK", null, destination, actualSha, total);
+        return new Result(true, "OK", null, destination, actualSha, total, false, null);
     }
 
-    private HttpURLConnection open(String url) throws IOException {
+    private HttpURLConnection open(String url, String etag) throws IOException {
         String current = url;
         for (int hop = 0; hop <= MAX_REDIRECTS; hop++) {
             if (!UrlPolicy.isAllowedUpdateUrl(current)) {
@@ -173,6 +192,9 @@ public final class HttpFetcher {
             connection.setUseCaches(false);
             connection.setRequestProperty("Accept", "application/json, application/octet-stream");
             connection.setRequestProperty("User-Agent", "GameDay-Android/" + userAgentVersion());
+            if (etag != null && !etag.isEmpty()) {
+                connection.setRequestProperty("If-None-Match", etag);
+            }
             int code = connection.getResponseCode();
             if (code >= 300 && code < 400) {
                 String location = connection.getHeaderField("Location");
@@ -193,7 +215,7 @@ public final class HttpFetcher {
     }
 
     private static String userAgentVersion() {
-        return "1.0";
+        return app.gameday.host.BuildConfig.VERSION_NAME;
     }
 
     private static String readBounded(InputStream in, int max) throws IOException {

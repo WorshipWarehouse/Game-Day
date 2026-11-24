@@ -16,6 +16,7 @@ import app.gameday.core.Json;
 import app.gameday.core.Redactor;
 import app.gameday.core.StorageBudget;
 import app.gameday.core.TimeFormat;
+import app.gameday.core.compat.IsolationAssessment;
 import app.gameday.core.diagnostics.DiagnosticReport;
 import app.gameday.host.AppServices;
 import app.gameday.host.BuildConfig;
@@ -105,6 +106,19 @@ public final class DiagnosticsExporter {
                     .put("reason", entry.reason));
         }
         report.section("runtimeOptions", alternatives);
+
+        // Phase 2 evidence: is a real isolated Android user (managed profile) even possible here?
+        // Measured, not assumed; Fire TV may omit both the feature and the provisioning flow.
+        IsolationAssessment.Result isolation =
+                IsolationAssessment.evaluate(DeviceProbe.isolationFacts(app));
+        report.section("isolation", Json.object()
+                .put("candidate", "managed-profile")
+                .put("verdict", isolation.verdict.name())
+                .put("reason", isolation.reason)
+                .put("preservesProtectedPlayback", isolation.preservesProtectedPlayback)
+                .put("raisesApiLevel", isolation.raisesApiLevel)
+                .put("benefits", new JsonArrayBuilder().addAll(isolation.benefits).build())
+                .put("costs", new JsonArrayBuilder().addAll(isolation.costs).build()));
 
         Json host = Json.object()
                 .put("packageName", BuildConfig.HOST_PACKAGE)

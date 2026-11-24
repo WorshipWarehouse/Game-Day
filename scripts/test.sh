@@ -52,6 +52,13 @@ print("{:<42} {:>6} {:>8} {:>8}".format("TOTAL", total, failures, skipped))
 raise SystemExit(1 if failures else 0)
 PY
 
+echo
+echo "Running Android Lint (API-level and correctness gate)"
+# Lint is the regression gate for a whole class of device-only bugs: an API-26 call in API-25 code
+# compiles cleanly and then throws NoSuchMethodError on the Fire TV. The unit tests cannot see it;
+# lint's API database can.
+./gradlew --console=plain :apps:fire-tv:lintDebug :compatibility:test-app:lintDebug
+
 if [ "${1:-}" = "--device" ]; then
   echo
   echo "Installing the compatibility test app"

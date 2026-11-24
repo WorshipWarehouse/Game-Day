@@ -88,11 +88,10 @@ public final class StartupActivity extends Activity {
 
             final NflUpdateManager.Snapshot guest = services.nflUpdates().observe();
 
-            GameDayUpdateManager.Status update = services.gameDayUpdates().storedStatus();
-            if (!safeMode && services.gameDayUpdates().shouldAutoCheck(now)) {
-                update = services.gameDayUpdates().check(false);
-            }
-            final GameDayUpdateManager.Status finalUpdate = update;
+            // Startup never waits on the network. The cached status is shown immediately and the
+            // real check (which can take seconds on a slow link) runs after routing.
+            final GameDayUpdateManager.Status finalUpdate =
+                    services.gameDayUpdates().storedStatus();
 
             long elapsed = SystemClock.elapsedRealtime() - startedAt;
             if (elapsed < MIN_SPLASH_MS) {
@@ -131,6 +130,27 @@ public final class StartupActivity extends Activity {
         home.putExtra(HomeActivity.EXTRA_AUTO_LAUNCH, autoLaunch);
         startActivity(home);
         finish();
+        checkForUpdatesInBackground();
+    }
+
+    /**
+     * Runs the rate-limited release check off the startup path. The result is persisted by the
+     * manager, so whichever screen reads {@code storedStatus()} next shows it; nothing here touches
+     * the UI thread, and the thread is a daemon so it cannot keep the process alive.
+     */
+    private void checkForUpdatesInBackground() {
+        if (!services.gameDayUpdates().shouldAutoCheck(System.currentTimeMillis())) {
+            return;
+        }
+        Thread worker = new Thread(() -> {
+            try {
+                services.gameDayUpdates().check(false);
+            } catch (RuntimeException e) {
+                services.crashLog().record("background update check failed: " + e.getMessage());
+            }
+        }, "gameday-release-check");
+        worker.setDaemon(true);
+        worker.start();
     }
 
     private void setStatus(final int stringRes) {

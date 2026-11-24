@@ -3,6 +3,10 @@ package app.gameday.host.settings;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import app.gameday.core.KeyValueStore;
 import app.gameday.core.update.ReleaseChannel;
 
@@ -29,6 +33,7 @@ public final class SettingsStore implements KeyValueStore {
     public static final String NFL_LAST_KNOWN_WORKING_NAME = "nfl.lastKnownWorkingName";
     public static final String NFL_LAST_CHECK_MS = "nfl.lastCheckMs";
     public static final String NFL_LAST_OBSERVED_UPDATE_MS = "nfl.lastObservedUpdateMs";
+    public static final String NFL_FIRST_INSTALL_MS = "nfl.firstInstallMs";
     public static final String NFL_STORE_LATEST_VERSION_NAME = "nfl.storeLatestVersionName";
 
     public static final String GD_LAST_CHECK_MS = "gd.lastCheckMs";
@@ -40,6 +45,9 @@ public final class SettingsStore implements KeyValueStore {
     public static final String GD_LATEST_SHA256 = "gd.latest.sha256";
     public static final String GD_LATEST_SIZE = "gd.latest.size";
     public static final String GD_LATEST_NOTES = "gd.latest.notes";
+    public static final String GD_LATEST_MIN_SDK = "gd.latest.minSdk";
+    public static final String GD_LATEST_PUBLISHED_AT = "gd.latest.publishedAt";
+    public static final String GD_RELEASES_ETAG = "gd.releases.etag";
     public static final String GD_INSTALL_ATTEMPT_MS = "gd.installAttemptMs";
 
     public static final String RUNTIME_LAST_ERROR = "runtime.lastError";
@@ -117,6 +125,8 @@ public final class SettingsStore implements KeyValueStore {
                 .remove(GD_LATEST_SHA256)
                 .remove(GD_LATEST_SIZE)
                 .remove(GD_LATEST_NOTES)
+                .remove(GD_LATEST_MIN_SDK)
+                .remove(GD_LATEST_PUBLISHED_AT)
                 .apply();
     }
 
@@ -170,8 +180,42 @@ public final class SettingsStore implements KeyValueStore {
         return prefs.edit().commit();
     }
 
-    /** Restores factory defaults without touching the NFL application. */
+    /**
+     * Restores factory defaults without touching the NFL application.
+     *
+     * <p>Observed facts are deliberately preserved: the pinned NFL signing certificate (clearing it
+     * would silently re-open trust-on-first-use to any package that replaced the app), the version
+     * GameDay last saw installed, and the last version known to launch. Only user preferences are
+     * reset, so "restore defaults" cannot weaken package verification.
+     */
     public void resetToDefaults() {
-        prefs.edit().clear().apply();
+        Set<String> preserved = new LinkedHashSet<String>();
+        preserved.add(NFL_TRUSTED_SIGNER);
+        preserved.add(NFL_INSTALLED_VERSION_CODE);
+        preserved.add(NFL_INSTALLED_VERSION_NAME);
+        preserved.add(NFL_LAST_KNOWN_WORKING_CODE);
+        preserved.add(NFL_LAST_KNOWN_WORKING_NAME);
+        preserved.add(NFL_LAST_OBSERVED_UPDATE_MS);
+        preserved.add(NFL_FIRST_INSTALL_MS);
+        SharedPreferences.Editor editor = prefs.edit();
+        for (String key : prefs.getAll().keySet()) {
+            if (!preserved.contains(key)) {
+                editor.remove(key);
+            }
+        }
+        editor.apply();
+    }
+
+    /** Keys that survive a configuration reset, for the confirmation dialog and diagnostics. */
+    public static Set<String> preservedAcrossReset() {
+        Set<String> preserved = new LinkedHashSet<String>();
+        preserved.add(NFL_TRUSTED_SIGNER);
+        preserved.add(NFL_INSTALLED_VERSION_CODE);
+        preserved.add(NFL_INSTALLED_VERSION_NAME);
+        preserved.add(NFL_LAST_KNOWN_WORKING_CODE);
+        preserved.add(NFL_LAST_KNOWN_WORKING_NAME);
+        preserved.add(NFL_LAST_OBSERVED_UPDATE_MS);
+        preserved.add(NFL_FIRST_INSTALL_MS);
+        return Collections.unmodifiableSet(preserved);
     }
 }

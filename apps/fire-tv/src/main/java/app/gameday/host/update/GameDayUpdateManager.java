@@ -105,11 +105,13 @@ public final class GameDayUpdateManager {
         if (code <= 0 || url == null || url.isEmpty() || sha == null || sha.isEmpty()) {
             return null;
         }
+        // Values are read back exactly as published. Earlier versions reconstructed minSdk and
+        // publishedAt from local state, which misreported the artefact in diagnostics and exports.
         return new UpdateManifest(app.getPackageName(), settings.channel(),
                 settings.getString(SettingsStore.GD_LATEST_VERSION_NAME, "0.0.0"), code,
-                25, // GameDay's own minSdk; used for display of a cached manifest only
+                (int) settings.getLong(SettingsStore.GD_LATEST_MIN_SDK, 0L),
                 url, sha, settings.getLong(SettingsStore.GD_LATEST_SIZE, 0L),
-                TimeFormat.isoUtc(settings.getLong(SettingsStore.GD_LAST_CHECK_MS, 0L)),
+                settings.getString(SettingsStore.GD_LATEST_PUBLISHED_AT, ""),
                 settings.getString(SettingsStore.GD_LATEST_NOTES, ""));
     }
 
@@ -140,9 +142,21 @@ public final class GameDayUpdateManager {
         settings.putLong(SettingsStore.GD_LAST_CHECK_MS, now);
         String releasesUrl = "https://api.github.com/repos/" + BuildConfig.UPDATE_REPOSITORY
                 + "/releases?per_page=10";
-        HttpFetcher.Result response = http.fetchText(releasesUrl);
+        String cachedEtag = settings.getString(SettingsStore.GD_RELEASES_ETAG, null);
+        HttpFetcher.Result response = http.fetchText(releasesUrl, cachedEtag);
         if (!response.ok) {
             return failure(now, response.message);
+        }
+        if (response.notModified) {
+            // Conditional request: the feed is unchanged, so no release document is parsed and no
+            // further requests are made. This is what keeps a 1.5 GB device off the network.
+            settings.setFailures(0);
+            settings.commit();
+            return new Status(Phase.UP_TO_DATE, "Release feed unchanged since the last check.",
+                    storedManifest(), now);
+        }
+        if (response.etag != null && !response.etag.isEmpty()) {
+            settings.putString(SettingsStore.GD_RELEASES_ETAG, response.etag);
         }
         Json releases = Json.parseOrNull(response.body);
         if (releases == null || !releases.isArray()) {
@@ -287,6 +301,8 @@ public final class GameDayUpdateManager {
         settings.putString(SettingsStore.GD_LATEST_SHA256, manifest.sha256());
         settings.putLong(SettingsStore.GD_LATEST_SIZE, manifest.sizeBytes());
         settings.putString(SettingsStore.GD_LATEST_NOTES, manifest.releaseNotes());
+        settings.putLong(SettingsStore.GD_LATEST_MIN_SDK, manifest.minSdk());
+        settings.putString(SettingsStore.GD_LATEST_PUBLISHED_AT, manifest.publishedAt());
         settings.putLong(SettingsStore.GD_LAST_CHECK_MS, now);
         settings.commit();
     }

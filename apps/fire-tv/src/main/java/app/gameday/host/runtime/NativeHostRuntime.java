@@ -241,6 +241,25 @@ public final class NativeHostRuntime implements RuntimeBackend {
         }
     }
 
+    /**
+     * When the guest was first installed on this device.
+     *
+     * <p>Used to detect a reinstall (as opposed to an update): a changed value means the package was
+     * removed and installed again, which normally means its local data and sign-in are gone. That is
+     * the closest a normal app can get to verifying "application data was preserved".
+     */
+    public long hostFirstInstallTime() {
+        try {
+            PackageInfo info = app.getPackageManager()
+                    .getPackageInfo(spec.packageName(), 0);
+            return info.firstInstallTime;
+        } catch (PackageManager.NameNotFoundException e) {
+            return -1L;
+        } catch (RuntimeException e) {
+            return -1L;
+        }
+    }
+
     private boolean isHostInstalled() {
         try {
             app.getPackageManager().getPackageInfo(spec.packageName(), 0);
@@ -320,7 +339,7 @@ public final class NativeHostRuntime implements RuntimeBackend {
                 PackageInstallerHelper.install(app, files, installedCode >= 0);
         if (!result.ok()) {
             return RuntimeResult.error(result.permissionNeeded()
-                    ? RuntimeError.VERIFICATION_FAILED : RuntimeError.INSTALL_FAILED,
+                    ? RuntimeError.PERMISSION_REQUIRED : RuntimeError.INSTALL_FAILED,
                     result.message());
         }
         return RuntimeResult.ok();

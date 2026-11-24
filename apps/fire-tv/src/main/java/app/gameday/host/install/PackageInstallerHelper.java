@@ -87,7 +87,11 @@ public final class PackageInstallerHelper {
                     ? PackageInstaller.SessionParams.MODE_INHERIT_EXISTING
                     : PackageInstaller.SessionParams.MODE_FULL_INSTALL;
             PackageInstaller.SessionParams params = new PackageInstaller.SessionParams(mode);
-            params.setInstallReason(android.content.pm.PackageManager.INSTALL_REASON_USER);
+            // setInstallReason() is API 26; calling it unguarded throws NoSuchMethodError on
+            // Fire OS 6 (API 25), which would break every staged install on the target device.
+            if (Build.VERSION.SDK_INT >= 26) {
+                params.setInstallReason(android.content.pm.PackageManager.INSTALL_REASON_USER);
+            }
             sessionId = installer.createSession(params);
             PackageInstaller.Session session = installer.openSession(sessionId);
             try {

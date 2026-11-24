@@ -112,12 +112,29 @@ public final class NflUpdateManager {
         if (info.versionCode() != storedCode) {
             if (storedCode > 0 && info.versionCode() > storedCode) {
                 settings.putLong(SettingsStore.NFL_LAST_OBSERVED_UPDATE_MS, now);
-                note = "The NFL app changed from " + storedCode + " to " + info.versionCode()
-                        + " since the last check.";
+                note = join(note, "The NFL app changed from " + storedCode + " to "
+                        + info.versionCode() + " since the last check.");
             }
             settings.putLong(SettingsStore.NFL_INSTALLED_VERSION_CODE, info.versionCode());
             settings.putString(SettingsStore.NFL_INSTALLED_VERSION_NAME, info.versionName());
             settings.commit();
+        }
+
+        // A changed first-install time means the package was uninstalled and installed again, not
+        // updated, so its local data and sign-in are probably gone. This is the closest an ordinary
+        // app can get to verifying "the application's data was preserved".
+        long firstInstall = runtime.hostFirstInstallTime();
+        if (firstInstall > 0L) {
+            long storedFirst = settings.getLong(SettingsStore.NFL_FIRST_INSTALL_MS, 0L);
+            if (storedFirst <= 0L) {
+                settings.putLong(SettingsStore.NFL_FIRST_INSTALL_MS, firstInstall);
+                settings.commit();
+            } else if (storedFirst != firstInstall) {
+                settings.putLong(SettingsStore.NFL_FIRST_INSTALL_MS, firstInstall);
+                settings.commit();
+                note = join(note, "The NFL app was reinstalled rather than updated (its first-install "
+                        + "time changed), so its local data and sign-in may have been reset.");
+            }
         }
 
         return new Snapshot(true, info.versionName(), info.versionCode(), signer,
@@ -138,6 +155,13 @@ public final class NflUpdateManager {
         settings.putLong(SettingsStore.NFL_LAST_KNOWN_WORKING_CODE, info.versionCode());
         settings.putString(SettingsStore.NFL_LAST_KNOWN_WORKING_NAME, info.versionName());
         settings.commit();
+    }
+
+    private static String join(String first, String second) {
+        if (first == null || first.isEmpty()) {
+            return second;
+        }
+        return first + " " + second;
     }
 
     public void noteCheckPerformed() {

@@ -2,7 +2,10 @@ package app.gameday.host.diagnostics;
 
 import android.app.ActivityManager;
 import android.app.UiModeManager;
+import android.app.admin.DevicePolicyManager;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.FeatureInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -28,6 +31,7 @@ import java.util.UUID;
 import app.gameday.core.Json;
 import app.gameday.core.StorageBudget;
 import app.gameday.core.compat.DeviceFacts;
+import app.gameday.core.compat.IsolationAssessment;
 
 /**
  * Reads what this device can actually do. Every value is measured on-device; nothing is assumed
@@ -297,6 +301,45 @@ public final class DeviceProbe {
         } catch (RuntimeException ignored) {
             return null;
         }
+    }
+
+    /**
+     * Facts for the one rootless isolation candidate that is not virtualization: a managed profile
+     * (work profile). This is measured, never assumed - Fire OS may omit both the feature and the
+     * provisioning flow. See docs/decisions/0002-isolation-feasibility.md.
+     */
+    public static IsolationAssessment.Facts isolationFacts(Context context) {
+        PackageManager pm = context.getPackageManager();
+        boolean managedUsers = false;
+        try {
+            managedUsers = pm.hasSystemFeature("android.software.managed_users");
+        } catch (RuntimeException ignored) {
+            // reported as absent
+        }
+
+        boolean provisioningResolves = false;
+        try {
+            Intent provision = new Intent(DevicePolicyManager.ACTION_PROVISION_MANAGED_PROFILE);
+            provision.addCategory(Intent.CATEGORY_DEFAULT);
+            provision.putExtra(DevicePolicyManager.EXTRA_PROVISIONING_DEVICE_ADMIN_COMPONENT_NAME,
+                    new ComponentName(context, "app.gameday.host.admin.GameDayDeviceAdmin"));
+            provisioningResolves = pm.resolveActivity(provision, PackageManager.MATCH_DEFAULT_ONLY)
+                    != null;
+        } catch (RuntimeException ignored) {
+            // reported as absent
+        }
+
+        boolean profileOwner = false;
+        try {
+            DevicePolicyManager dpm = (DevicePolicyManager) context
+                    .getSystemService(Context.DEVICE_POLICY_SERVICE);
+            profileOwner = dpm != null && dpm.isProfileOwnerApp(context.getPackageName());
+        } catch (RuntimeException ignored) {
+            // reported as absent
+        }
+
+        return new IsolationAssessment.Facts(Build.VERSION.SDK_INT, managedUsers,
+                provisioningResolves, profileOwner);
     }
 
     /** Immutable snapshot used by the UI; cheap to build and safe to cache per process. */

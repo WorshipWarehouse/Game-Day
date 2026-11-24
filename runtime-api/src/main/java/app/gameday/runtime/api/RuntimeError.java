@@ -12,6 +12,8 @@ public final class RuntimeError {
     public static final String BLOCKED_BY_RECOVERY = "BLOCKED_BY_RECOVERY";
     public static final String UNSUPPORTED_OPERATION = "UNSUPPORTED_OPERATION";
     public static final String INSTALL_FAILED = "INSTALL_FAILED";
+    /** The platform needs the user to grant an install-related permission first. */
+    public static final String PERMISSION_REQUIRED = "PERMISSION_REQUIRED";
     public static final String VERIFICATION_FAILED = "VERIFICATION_FAILED";
     public static final String STORAGE_INSUFFICIENT = "STORAGE_INSUFFICIENT";
     public static final String NETWORK_FAILED = "NETWORK_FAILED";
