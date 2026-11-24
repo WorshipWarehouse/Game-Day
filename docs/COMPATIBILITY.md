@@ -17,7 +17,9 @@ successor) device.
 | Leanback-launchable activity | Pass | `aapt2` → `leanback-launchable-activity: …StartupActivity` |
 | Permissions are minimal and declared | Pass | 4 permissions (INTERNET, ACCESS_NETWORK_STATE, REQUEST_INSTALL_PACKAGES, KILL_BACKGROUND_PROCESSES) |
 | Compat test app builds, own package and UID | Pass | `app.gameday.compat.test`, minSdk 25, leanback launchable |
-| Unit tests | 111 pass, 0 fail | `./scripts/test.sh` |
+| Unit tests | 129 pass, 0 fail | `./scripts/test.sh` |
+| Desktop runtime backend | 18 pass, 0 fail (fake adb; no VM required) | `:runtime:desktop:test` |
+| Host readiness verifier | Executed; correctly **BLOCKED** with four measured reasons | `:runtime:desktop:hostVerdict` |
 | Android Lint (API-level correctness) | 0 errors | `./scripts/test.sh` (Lint step) |
 | Managed-profile feasibility probe | Implemented, unit tested; device verdict pending | `IsolationAssessment`, `isolation` in diagnostics |
 | Version/update/backoff logic | Pass | `core` tests |
@@ -47,6 +49,8 @@ successor) device.
 | Managed-profile availability on Fire OS 6 | **Not verified** | `./scripts/qualify.sh` → `REPORT.md` (Managed users feature), diagnostics `isolation` |
 | Install permission state and usage-access state | **Not verified** | `./scripts/qualify.sh` → `updates.txt`, `REPORT.md` |
 | Consolidated hardware qualification | **Not verified** | `./scripts/qualify.sh --connect <ip>` writes `artifacts/qualify-*/REPORT.md` |
+| Android guest boot on Apple silicon (Avo) | **Not verified** — no Mac and no usable hypervisor in the review environment | `./gradlew :runtime:desktop:hostVerdict` on an M-series Mac, then `docs/RUNTIME-POC.md` §4 |
+| Protected playback inside the desktop VM | **Expected to fail by design** (L1 needs a TEE; a VM is L3 at best) | MediaDrm `SecurityLevel` probe in the guest |
 
 ## 3. Known limitations (by design, not defects)
 

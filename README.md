@@ -36,6 +36,21 @@ Every alternative was investigated and rejected with evidence (see
 GameDay is therefore a **host and update/managed-launch layer**, not a new runtime. That decision is
 what makes 1080p60 hardware-decoded playback with working DRM possible at all on this hardware.
 
+## Runtime status (Phase 3)
+
+GameDay has two runtimes, with deliberately different claims:
+
+- **Fire TV / Android TV (`apps/fire-tv`)** — native host. Authorized playback works because the guest
+  *is* the device's own app, with the device's Widevine L1 identity.
+- **Apple silicon macOS (`runtime/desktop`)** — a genuine Android VM on the Avo model
+  (Hypervisor.framework + unmodified AOSP Cuttlefish arm64 + gfxstream/Metal). Real isolation and a
+  per-app desktop experience, but **no protected playback**: L1 needs a TEE, so a VM is L3 at best.
+
+`./gradlew :runtime:desktop:hostVerdict` prints whether the current machine can boot that guest, and
+refuses with reasons when it cannot. Research: [docs/PLATFORMS.md](docs/PLATFORMS.md); decision:
+[docs/decisions/0003-platform-and-runtime.md](docs/decisions/0003-platform-and-runtime.md); executed
+evidence: [docs/RUNTIME-POC.md](docs/RUNTIME-POC.md).
+
 ## What GameDay actually does
 
 - **One-button launch.** Fire TV remote, D-pad only, no desktop, no configuration.
@@ -88,13 +103,14 @@ services, no NDK.
 
 ```bash
 ./scripts/setup.sh              # verify/locate the toolchain, write local.properties
-./scripts/test.sh               # 111 JVM unit tests, plus Android Lint
+./scripts/test.sh               # 129 JVM unit tests, plus Android Lint
 ./scripts/build.sh --all        # debug APK + compatibility test app
 ./scripts/package-release.sh    # signed, verified release APK in dist/
 ./scripts/deploy.sh --connect <fire-tv-ip>
 ./scripts/diagnose.sh           # device capability dump
 ./scripts/benchmark.sh          # cold/warm start, memory, frame stats
 ./scripts/qualify.sh --connect <fire-tv-ip>   # one-command qualification + consolidated report
+./gradlew :runtime:desktop:hostVerdict        # can this machine boot the desktop Android guest?
 ```
 
 Details: [docs/BUILD.md](docs/BUILD.md).
@@ -108,7 +124,7 @@ Split deliberately into what was verified here and what needs the device.
 - APK builds reproducibly with JDK 17 + AGP 8.5.2 + Gradle 8.7.
 - `aapt2` confirms `minSdk 25`, `targetSdk 34`, leanback-launchable activity, four permissions.
 - `apksigner` confirms a 4096-bit RSA signature; the APK is 112 KB.
-- 111 unit tests pass (version logic, update policy/backoff, signature and compatibility rules, split
+- 129 unit tests pass (version logic, update policy/backoff, signature and compatibility rules, split
   APK validation, redaction, JSON, crash guard, remote-key mapping, runtime state machine).
 - `dist/gameday-1.0.1.apk` — `a24439b1c75e9b55033030443fd3c2e8fe9f069f68037b865bc9ccbdeed1f374…` (SHA-256 printed by the packaging script).
 
@@ -150,7 +166,8 @@ and no analytics. See [SECURITY.md](SECURITY.md).
 
 ```
 apps/fire-tv/          Fire TV application (Java 17, no AndroidX, no Kotlin runtime)
-runtime-api/           Backend-agnostic runtime contract and coordinator (JVM, reusable by macOS)
+runtime-api/           Backend-agnostic runtime contract and coordinator (JVM, shared by both apps)
+runtime/desktop/       Apple-silicon Android VM backend (Avo-class) + host readiness verifier
 core/                  Version, update, compatibility, install, redaction, diagnostics logic + tests
 compatibility/test-app Own test application that validates the runtime on real hardware
 scripts/               setup, build, test, deploy, diagnose, benchmark, package-release
@@ -170,6 +187,8 @@ dist/                  Signed release APKs
 - [docs/UPDATES.md](docs/UPDATES.md) — the two independent update systems
 - [docs/FIRE-TV-SETUP.md](docs/FIRE-TV-SETUP.md) — device setup and sideloading
 - [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) — failure modes and recovery
+- [docs/PLATFORMS.md](docs/PLATFORMS.md) — platform comparison for a genuine Android runtime
+- [docs/RUNTIME-POC.md](docs/RUNTIME-POC.md) — what was executed, what the environment refused
 - [docs/MACOS-ROADMAP.md](docs/MACOS-ROADMAP.md) — future Apple-platform plan
 - [CHANGELOG.md](CHANGELOG.md), [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md)
 

@@ -3,6 +3,33 @@
 All notable changes to GameDay are documented here. Format loosely follows Keep a Changelog;
 versions follow semantic versioning, with Android `versionCode` as the installation authority.
 
+## [Unreleased] — platform pivot
+
+Phase 3: establishes which platform can host a *genuine* Android runtime, and encodes the answer.
+The Fire TV application is unchanged and still fully tested.
+
+### Added
+
+- `runtime/desktop`: `AvoRuntimeBackend`, a `RuntimeBackend` for a real Android VM (Hypervisor.framework
+  + unmodified AOSP Cuttlefish arm64, driven over adb), with 18 unit tests. Reports DRM, hardware
+  video decode, update provisioning and suspend/resume as **unsupported**, each with its cause.
+- `HostReadiness` + `DeviceProbe`-style host probe and `./gradlew :runtime:desktop:hostVerdict`: a
+  machine-checkable go/no-go gate (macOS, Apple silicon, 8 GB RAM, 10 GB disk, adb) that refuses to
+  start a guest and says why. Executed on the review host; output recorded in `docs/RUNTIME-POC.md`.
+- `docs/PLATFORMS.md` (macOS, ARM64 Android, Android TV boxes, Raspberry Pi 5, mini PCs, Fire OS 8),
+  `docs/RUNTIME-POC.md`, and ADR 0003 answering the platform questions.
+
+### Changed
+
+- `./scripts/test.sh` now runs `:runtime:desktop:test` (129 tests total).
+- `docs/MACOS-ROADMAP.md` records Avo as the selected foundation and marks superseded assumptions.
+
+### Not done, deliberately
+
+- No Android guest was booted: the build host has no usable hypervisor, is not macOS, and cannot
+  install the emulator's missing host libraries. Stage 5 (seamless desktop UX) is correctly blocked
+  on that validation.
+
 ## [1.0.1] — 2026-11-24
 
 Independent review pass. Ten defects fixed; no architecture change. See

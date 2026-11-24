@@ -1,7 +1,16 @@
 # macOS roadmap
 
-Status: **preparation only**. No macOS code exists, and none should be written until the Fire TV
-implementation has been validated on hardware (Milestone 9 of the mission).
+Status: **runtime selected; guest not yet booted.** Phase 3 replaced the speculative plan below with
+an evidence-based foundation — see [PLATFORMS.md](PLATFORMS.md) and
+[decisions/0003-platform-and-runtime.md](decisions/0003-platform-and-runtime.md).
+
+What changed: the macOS runtime is **Avo** (`nizwar/avo`, Apache-2.0 — a Rust VMM on Apple's
+Hypervisor.framework booting an unmodified AOSP Cuttlefish arm64 image with gfxstream + Metal), not a
+from-scratch emulator. `runtime/desktop` now implements GameDay's `RuntimeBackend` contract against
+it over adb, and `./gradlew :runtime:desktop:hostVerdict` is the go/no-go gate for any Mac.
+
+What did **not** change: a VM cannot carry Widevine L1, so this runtime hosts Android apps but cannot
+play protected premium content. Sections below that assume otherwise are superseded.
 
 This document records what is already reusable, what a macOS runtime would actually have to do, and
 the blockers that make "run the Android NFL app on a Mac" a research question rather than an
