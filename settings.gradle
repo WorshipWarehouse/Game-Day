@@ -20,6 +20,8 @@ rootProject.name = 'GameDay'
 include ':core'
 // Runtime backend contract shared by Android (now) and macOS (later).
 include ':runtime-api'
+// Desktop/Apple-silicon runtime backend (Avo-class HVF VM) and host readiness verification.
+include ':runtime:desktop'
 // The Fire TV application.
 include ':apps:fire-tv'
 // Self-owned compatibility test application used to validate the runtime on device.

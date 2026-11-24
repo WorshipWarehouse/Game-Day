@@ -1,0 +1,40 @@
+plugins {
+    id 'java-library'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+dependencies {
+    implementation project(':runtime-api')
+    testImplementation 'junit:junit:4.13.2'
+}
+
+test {
+    useJUnit()
+    testLogging {
+        events 'failed'
+        exceptionFormat 'full'
+    }
+}
+
+/**
+ * Prints this host's runtime-readiness verdict. Run it on any candidate machine (an Apple Silicon
+ * Mac, a Linux box, a CI runner) before believing that a guest can boot there:
+ *
+ *   ./gradlew :runtime:desktop:hostVerdict
+ *
+ * It performs no network access and changes nothing on the host.
+ */
+tasks.register('hostVerdict', JavaExec) {
+    group = 'verification'
+    description = 'Prints runtime readiness for this host as JSON, with blocking reasons'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'app.gameday.runtime.desktop.HostVerdictMain'
+}
